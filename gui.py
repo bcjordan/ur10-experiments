@@ -7,7 +7,8 @@ from six.moves import xrange
 from dataclasses import dataclass
 from typing import List
 from PIL import Image, ImageTk
-
+import os
+import random
 
 @dataclass
 class ArmDoodleCommand:
@@ -66,7 +67,6 @@ def simulate_draw(doodle_commands: List[ArmDoodleCommand], doodle_canvas, multip
         min_x, min_y, max_x, max_y = min(last_x, min_x), min(last_y, min_y), max(last_x, max_x), max(last_y, max_y),
         min_robot_x, min_robot_y, max_robot_x, max_robot_y = min(last_robot_x, min_robot_x), \
                                                              min(last_robot_y, min_robot_y), max(last_robot_x, max_robot_x), max(last_robot_y, max_robot_y),
-    doodle_canvas.create_line(last_x, last_y, last_x + x, last_y + y, tags="doodle_strokes")
     doodle_canvas.create_text(.5 * WINDOW, .2 * WINDOW, text="Min: {0:5.2f},{1:5.2f}  Max: {2:5.2f},{3:5.2f}".format(min_x, min_y, max_x, max_y), font=("Helvetica", 18), tags="doodle_text", fill="#7CA2C3")
     doodle_canvas.create_text(.5 * WINDOW, .25 * WINDOW, text="Robot Min: {0:5.2f},{1:5.2f}  Max: {2:5.2f},{3:5.2f}".format(min_robot_x, min_robot_y, max_robot_x, max_robot_y), font=("Helvetica", 18), tags="doodle_text", fill="#7CA2C3")
 
@@ -176,7 +176,7 @@ def idle(parent, canvas):
 
 WINDOW = 600  # window size
 DOODLE_MULTIPLE = 3
-ROBOT_MULTIPLE = .01
+ROBOT_MULTIPLE = .005
 root = Tk()
 root.title('UR10 Doodle UI (q to exit)')
 root.bind('q', 'exit')
@@ -188,7 +188,10 @@ img2 = canvas.create_image(-10, -3, image=photo, anchor="nw")
 canvas.create_text(.5 * WINDOW, .125 * WINDOW, text="Press R to generate a new doodle!", font=("Helvetica", 24), tags="text1", fill="#949494")
 canvas.create_text(.5 * WINDOW, .7 * WINDOW, text="Robot Draw Multiple: {}".format(ROBOT_MULTIPLE), font=("Helvetica", 12), tags="text1", fill="#949494")
 
+target_doodle = []
+
 def do_draw_random():
+    global target_doodle # lol
     canvas.delete("doodle_text")
     canvas.delete("doodle_strokes")
     drawing = decode(temperature=0.5, draw_mode=False)
@@ -197,9 +200,51 @@ def do_draw_random():
     canvas.delete("doodle_strokes")
     simulate_draw(strokes, canvas, DOODLE_MULTIPLE, ROBOT_MULTIPLE)
     canvas.move('doodle_strokes', 250, 250)
+    target_doodle = strokes
 
+
+def do_arm_draw(doodle_commands: List[ArmDoodleCommand], robot_multiple):
+    from urx import Robot
+    rob = Robot("169.254.241.97")
+    robot_pose = rob.get_pose()
+    start_position = robot_pose.get_pos().copy()
+    start_orientation = robot_pose.get_orient().copy()
+
+    last_robot_x, last_robot_y = start_position[0], start_position[1]
+
+    pen_was_down = False
+
+    for d in doodle_commands:
+        robot_dx, robot_dy = d.dx * robot_multiple, d.dy * robot_multiple
+
+        increased_x, increased_y = last_robot_x + robot_dx, last_robot_y + robot_dy
+
+        if not d.pen_down:
+            if pen_was_down:
+
+                os.system('say "{}"'.format(
+                    random.choice(['Yes! Very nice.',
+                                   'This is coming along well.',
+                                   'This may be my best creation yet.',
+                                   'This will be great.'])
+                ))
+            robot_pose.set_pos([increased_x, increased_y, start_position[2] + 0.01])
+            rob.set_pose(robot_pose, 0.1, 0.1)
+        else:
+            robot_pose.set_pos([increased_x, increased_y, start_position[2]])
+            rob.set_pose(robot_pose, 0.1, 0.1)
+
+        # Increment position, update cross-step state
+        last_robot_x, last_robot_y = increased_x, increased_y
+        pen_was_down = d.pen_down
+
+    # Go back to home
+    robot_pose.set_pos(start_position)
+    rob.set_pose(robot_pose, 0.1, 0.1)
+    os.system('say "Human! How do you like my doodle?"')
 
 root.bind('r', func=lambda e: do_draw_random())
+root.bind('d', func=lambda e: do_arm_draw(target_doodle, ROBOT_MULTIPLE))
 
 canvas.pack()
 
