@@ -9,6 +9,7 @@ from typing import List
 from PIL import Image, ImageTk
 import os
 import random
+import subprocess
 
 @dataclass
 class ArmDoodleCommand:
@@ -190,8 +191,14 @@ canvas.create_text(.5 * WINDOW, .7 * WINDOW, text="Robot Draw Multiple: {}".form
 
 target_doodle = []
 
+def say_from_phrases(phrases):
+    subprocess.Popen(['say', "{}".format(random.choice(phrases))])
+
+say_from_phrases(['Welcome, I am a robot arm. Here is a drawing I just came up with.'])
+
 def do_draw_random():
     global target_doodle # lol
+
     canvas.delete("doodle_text")
     canvas.delete("doodle_strokes")
     drawing = decode(temperature=0.5, draw_mode=False)
@@ -201,9 +208,16 @@ def do_draw_random():
     simulate_draw(strokes, canvas, DOODLE_MULTIPLE, ROBOT_MULTIPLE)
     canvas.move('doodle_strokes', 250, 250)
     target_doodle = strokes
+    say_from_phrases(['This is one I just thought of.',
+                      "Wouldn't this look great?",
+                      "Let me draw this.",
+                      "Come on let me draw this.",
+                      'Please let me draw this, it is my favorite.',
+                      "It's not my best idea but it could be good."])
 
 
 def do_arm_draw(doodle_commands: List[ArmDoodleCommand], robot_multiple):
+    os.system('say "I will now commence drawing. Humans, please stand back."')
     from urx import Robot
     rob = Robot("169.254.241.97")
     robot_pose = rob.get_pose()
@@ -221,13 +235,10 @@ def do_arm_draw(doodle_commands: List[ArmDoodleCommand], robot_multiple):
 
         if not d.pen_down:
             if pen_was_down:
-
-                os.system('say "{}"'.format(
-                    random.choice(['Yes! Very nice.',
+                say_from_phrases(['Yes! Very nice.',
                                    'This is coming along well.',
                                    'This may be my best creation yet.',
                                    'This will be great.'])
-                ))
             robot_pose.set_pos([increased_x, increased_y, start_position[2] + 0.01])
             rob.set_pose(robot_pose, 0.1, 0.1)
         else:
@@ -239,9 +250,10 @@ def do_arm_draw(doodle_commands: List[ArmDoodleCommand], robot_multiple):
         pen_was_down = d.pen_down
 
     # Go back to home
-    robot_pose.set_pos(start_position)
+    robot_pose.set_pos([start_position[0], start_position[1], start_position[2] + 0.01])
+    robot_pose.set_pos([start_position[0], start_position[1], start_position[2]])
     rob.set_pose(robot_pose, 0.1, 0.1)
-    os.system('say "Human! How do you like my doodle?"')
+    say_from_phrases(["Human! How do you like my doodle?"])
 
 root.bind('r', func=lambda e: do_draw_random())
 root.bind('d', func=lambda e: do_arm_draw(target_doodle, ROBOT_MULTIPLE))
