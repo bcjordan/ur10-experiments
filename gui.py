@@ -6,6 +6,7 @@ from magenta.models.sketch_rnn.rnn import *
 from six.moves import xrange
 from dataclasses import dataclass
 from typing import List
+from PIL import Image, ImageTk
 
 
 @dataclass
@@ -57,7 +58,7 @@ def simulate_draw(doodle_commands: List[ArmDoodleCommand], doodle_canvas, multip
         x, y = d.dx * multiple, d.dy * multiple
         robot_x, robot_y = d.dx * robot_multiple, d.dy * robot_multiple
         if not d.pen_down:
-          doodle_canvas.create_line(last_x, last_y, last_x + x, last_y + y, tags="doodle_strokes", fill="#00ff00")
+          doodle_canvas.create_line(last_x, last_y, last_x + x, last_y + y, tags="doodle_strokes", fill="#00ff00", )
         else:
           doodle_canvas.create_line(last_x, last_y, last_x + x, last_y + y, tags="doodle_strokes")
         last_x, last_y = last_x + x, last_y + y
@@ -66,9 +67,8 @@ def simulate_draw(doodle_commands: List[ArmDoodleCommand], doodle_canvas, multip
         min_robot_x, min_robot_y, max_robot_x, max_robot_y = min(last_robot_x, min_robot_x), \
                                                              min(last_robot_y, min_robot_y), max(last_robot_x, max_robot_x), max(last_robot_y, max_robot_y),
     doodle_canvas.create_line(last_x, last_y, last_x + x, last_y + y, tags="doodle_strokes")
-    doodle_canvas.create_text(.5 * WINDOW, .2 * WINDOW, text="Min: {0:7.2f},{1:7.2f}   Max: {2:7.2f},{3:7.2f}".format(min_x, min_y, max_x, max_y), font=("Helvetica", 18), tags="doodle_text", fill="#0000b0")
-    doodle_canvas.create_text(.5 * WINDOW, .25 * WINDOW, text="Robot Min: {0:7.2f},{1:7.2f}   Max: {2:7.2f},{3:7.2f}".format(min_robot_x, min_robot_y, max_robot_x, max_robot_y), font=("Helvetica", 18), tags="doodle_text", fill="#0000b0")
-
+    doodle_canvas.create_text(.5 * WINDOW, .2 * WINDOW, text="Min: {0:5.2f},{1:5.2f}  Max: {2:5.2f},{3:5.2f}".format(min_x, min_y, max_x, max_y), font=("Helvetica", 18), tags="doodle_text", fill="#7CA2C3")
+    doodle_canvas.create_text(.5 * WINDOW, .25 * WINDOW, text="Robot Min: {0:5.2f},{1:5.2f}  Max: {2:5.2f},{3:5.2f}".format(min_robot_x, min_robot_y, max_robot_x, max_robot_y), font=("Helvetica", 18), tags="doodle_text", fill="#7CA2C3")
 
 # def load_env_compatible(data_dir, model_dir):
 #   """Loads environment for inference mode, used in jupyter notebook."""
@@ -182,8 +182,11 @@ root.title('UR10 Doodle UI (q to exit)')
 root.bind('q', 'exit')
 root.bind('<Escape>', 'exit')
 canvas = Canvas(root, width=WINDOW, height=.75 * WINDOW, background='white')
-canvas.create_text(.5 * WINDOW, .125 * WINDOW, text="Press R to generate a new doodle!", font=("Helvetica", 24), tags="text1", fill="#0000b0")
-canvas.create_text(.5 * WINDOW, .7 * WINDOW, text="Robot Draw Multiple: {}".format(ROBOT_MULTIPLE), font=("Helvetica", 12), tags="text1", fill="#0000b0")
+image = Image.open("ur10.jpg")
+photo = ImageTk.PhotoImage(image)
+img2 = canvas.create_image(-10, -3, image=photo, anchor="nw")
+canvas.create_text(.5 * WINDOW, .125 * WINDOW, text="Press R to generate a new doodle!", font=("Helvetica", 24), tags="text1", fill="#949494")
+canvas.create_text(.5 * WINDOW, .7 * WINDOW, text="Robot Draw Multiple: {}".format(ROBOT_MULTIPLE), font=("Helvetica", 12), tags="text1", fill="#949494")
 
 def do_draw_random():
     canvas.delete("doodle_text")
