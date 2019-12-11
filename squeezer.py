@@ -178,7 +178,7 @@ def idle(parent, canvas):
 
 WINDOW = 600  # window size
 DOODLE_MULTIPLE = 3
-ROBOT_MULTIPLE = .001
+ROBOT_MULTIPLE = .0035
 root = Tk()
 root.title('UR10 Doodle UI (q to exit)')
 root.bind('q', 'exit')
@@ -217,13 +217,15 @@ def do_draw_random():
                       "It's not my best idea but it could be good."])
 
 
-START_HOLD_VALUE = 107
-START_SQUEEZE_VALUE = 108
+START_HOLD_VALUE = 113
 current_hold = START_HOLD_VALUE
 current_squeeze = START_HOLD_VALUE
+SQUEEZE_EACH_STEPS = 5
+squeeze_count = 0
 
 def do_arm_draw(doodle_commands: List[ArmDoodleCommand], robot_multiple):
     global current_squeeze
+    global squeeze_count
     os.system('say "I will now commence with my beautiful creation. Humans, please stand back."')
     from urx import Robot
     from urx.robotiq_two_finger_gripper import Robotiq_Two_Finger_Gripper
@@ -255,8 +257,10 @@ def do_arm_draw(doodle_commands: List[ArmDoodleCommand], robot_multiple):
             robot_pose.set_pos([increased_x, increased_y, start_position[2] + 0.01])
             rob.set_pose(robot_pose, 0.1, 0.1)
         else:
-            current_squeeze = current_squeeze + 1
-            gripper.gripper_action(current_squeeze)
+            if squeeze_count % SQUEEZE_EACH_STEPS == 0:
+                current_squeeze = current_squeeze + 1
+                gripper.gripper_action(current_squeeze)
+            squeeze_count = squeeze_count + 1
             robot_pose.set_pos([increased_x, increased_y, start_position[2]])
             rob.set_pose(robot_pose, 0.1, 0.1)
 
