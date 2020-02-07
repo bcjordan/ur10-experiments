@@ -19,7 +19,7 @@ I very slowly ratcheted up the velocities with very confined small upward `+z` m
 
 I placed a small ball of tape on the arm to see if the velocity was high enough to constitute a throw.
 
-![juggling](uploads/c82bc27d937e9e9e3b33b7fea2f371f6/juggling.mp4)
+![juggling](media/juggling.mp4)
 
 It got a few inches of height!
 
@@ -41,7 +41,7 @@ I also figured sketch-rnn model would be an interesting way to get individual st
 
 #### Making a Drawing UI (that talks to you)
 
-![ui-shot-bad](uploads/7921c9dc502a6ee21c6f7958d5bff786/ui-shot-bad.png)
+![ui-shot-bad](media/ui-shot-bad.png)
 
 I wanted to have a GUI to be able to see what the arm was about to draw. I initially wanted to explore using JS, but found that there weren't any great node/JS libraries out there for controlling the UR-10 (YET!). There is one node-RED module, but I had trouble getting that connected up to the UR-10.
 
@@ -93,19 +93,19 @@ Initially the speech was blocking, using `os.system`, so I changed it to: `subpr
 
 I initially brought down a pencil to try drawing with. As I was zeroing the robot arm, I realized a pencil would be one of the worst possible drawing implements, since it would have very little give and would change its required zero over time.
 
-![pencil-bad-idea](uploads/6cb3ee878bdcc05ea98bfa19010c1455/pencil-bad-idea.jpg)
+![pencil-bad-idea](media/pencil-bad-idea.jpg)
 
 I then tried a standard sharpie marker, which worked OK! After a while, though, on strokes that went perpendicular to the gripper, the marker would slip and go diagonal, losing firm contact.
 
-![manual-grip-marker](uploads/d0685a60cb8a2d9826ec3803d9a78ea9/manual-grip-marker.jpg)
+![manual-grip-marker](media/manual-grip-marker.jpg)
 
-![robot-drawing-2](uploads/f1d48d91f7072dac52350b9a5ab662d6/robot-drawing-2.jpg)
+![robot-drawing-2](media/robot-drawing-2.jpg)
 
 A kindly CBA student then pointed us towards paint-y-markers with spring-y tips. Those worked really well.
 
-![robot-drawing](uploads/16af50835f3a4c3f019d3be2013253d0/robot-drawing.jpg)
+![robot-drawing](media/robot-drawing.jpg)
 
-![robot-drawing-3](uploads/3ec6f4b2e613f28e5436edaa7dedce2b/robot-drawing-3.jpg)
+![robot-drawing-3](media/robot-drawing-3.jpg)
 
 My code had a bug where it would return home after drawing, but not lift the pen up. I eventually fixed it but haven't run it with a pen since then!
 
@@ -128,27 +128,27 @@ Precautions I followed, since I wanted to make sure I didn't get any anywhere:
 
 * Mount ketchup with a cup underneath the gripper. Ketchup drips for ~30 seconds after being initially gripped.
 
-![ketchup-setup](uploads/41e7449b6f9bbaecfe2aff2348857402/ketchup-setup.jpg)
+![ketchup-setup](media/ketchup-setup.jpg)
 
 * To avoid requiring a tighter grip, I added rubber bands to the gripper fingers.
 * Made sure not to let the bottle drop. This partially informed the approach of continually increasing grip pressure, rather than periodically gripping and un-gripping the bottle.
 * Have a layer of plastic underneath the paper for no leakage
 
-![multiple-layers-arm-shot](uploads/44cee5d1051867174df3a1f1eb87683e/multiple-layers-arm-shot.png)
+![multiple-layers-arm-shot](media/multiple-layers-arm-shot.png)
 
 I found that tipping the ketchup to the side at a 45 degree angle would allow for a better grip and flow of the ketchup.
 
-![Zeroing the Ketchup](uploads/6410c3932fb8a5fab704dbae8f1b8c01/output_video_small_2.mp4)
+![Zeroing the Ketchup](media/output_video_small_2.mp4)
 
-![First Attempt: Gripping Too Fast](uploads/b37837fec5176ee8bf83e76d428d2ce8/output_video_small.mp4)
+![First Attempt: Gripping Too Fast](media/output_video_small.mp4)
 
 Final creation:
 
-![Beautiful Final Drawing](uploads/200235f9d72403c3c89bcf764a7f65cd/final_drawing.mp4)
+![Beautiful Final Drawing](media/final_drawing.mp4)
 
 The drawing it ultimately produced was underwhelming, but if you squint at it, you can sort of see a flamingo:
 
-![drawing-terrible](uploads/e50506d659e4e07204af8b9a840c79cb/drawing-terrible.jpg)
+![drawing-terrible](media/drawing-terrible.jpg)
 
 The robot tried its best!
 
